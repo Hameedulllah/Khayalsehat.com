@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeCare PK - Home Healthcare Services</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:'Inter',sans-serif;
+      background:#f8fbff;
+      color:#1e293b;
+      line-height:1.6;
+    }
+
+    a{
+      text-decoration:none;
+    }
+
+    .container{
+      width:90%;
+      max-width:1200px;
+      margin:auto;
+    }
+
+    /* NAVBAR */
+
+    nav{
+      background:white;
+      padding:18px 0;
+      position:sticky;
+      top:0;
+      z-index:1000;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .nav-wrapper{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .logo{
+      font-size:28px;
+      font-weight:800;
+      color:#2563eb;
+    }
+
+    .nav-links{
+      display:flex;
+      gap:30px;
+      align-items:center;
+    }
+
+    .nav-links a{
+      color:#334155;
+      font-weight:600;
+    }
+
+    .btn{
+      display:inline-block;
+      padding:14px 28px;
+      border-radius:12px;
+      font-weight:600;
+      transition:0.3s;
+    }
+
+    .btn-primary{
+      background:#2563eb;
+      color:white;
+    }
+
+    .btn-primary:hover{
+      background:#1d4ed8;
+    }
+
+    .btn-secondary{
+      background:#10b981;
+      color:white;
+    }
+
+    .btn-secondary:hover{
+      background:#059669;
+    }
+
+    /* HERO */
+
+    .hero{
+      padding:90px 0;
+    }
+
+    .hero-wrapper{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:50px;
+      flex-wrap:wrap;
+    }
+
+    .hero-text{
+      flex:1;
+    }
+
+    .hero-text h1{
+      font-size:56px;
+      line-height:1.2;
+      margin-bottom:20px;
+      color:#0f172a;
+    }
+
+    .hero-text p{
+      font-size:18px;
+      color:#475569;
+      margin-bottom:30px;
+      max-width:600px;
+    }
+
+    .hero-buttons{
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
+      margin-bottom:25px;
+    }
+
+    .badges{
+      display:flex;
+      gap:20px;
+      flex-wrap:wrap;
+      font-weight:600;
+      color:#0f766e;
+    }
+
+    .hero-image{
+      flex:1;
+    }
+
+    .hero-image img{
+      width:100%;
+      border-radius:24px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.1);
+    }
+
+    /* SERVICES */
+
+    section{
+      padding:80px 0;
+    }
+
+    .section-title{
+      text-align:center;
+      margin-bottom:50px;
+    }
+
+    .section-title h2{
+      font-size:40px;
+      margin-bottom:10px;
+    }
+
+    .section-title p{
+      color:#64748b;
+    }
+
+    .services-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:25px;
+    }
+
+    .service-card{
+      background:white;
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.05);
+      transition:0.3s;
+    }
+
+    .service-card:hover{
+      transform:translateY(-8px);
+    }
+
+    .service-icon{
+      font-size:40px;
+      margin-bottom:15px;
+    }
+
+    .service-card h3{
+      margin-bottom:10px;
+    }
+
+    .service-card p{
+      color:#64748b;
+      margin-bottom:20px;
+    }
+
+    /* HOW IT WORKS */
+
+    .steps{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:25px;
+    }
+
+    .step-card{
+      background:white;
+      padding:35px;
+      border-radius:20px;
+      text-align:center;
+      box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .step-number{
+      width:60px;
+      height:60px;
+      margin:auto;
+      margin-bottom:20px;
+      border-radius:50%;
+      background:#2563eb;
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      font-weight:700;
+    }
+
+    /* EMERGENCY */
+
+    .emergency{
+      background:linear-gradient(135deg,#2563eb,#10b981);
+      color:white;
+      border-radius:30px;
+      padding:60px;
+      text-align:center;
+    }
+
+    .emergency h2{
+      font-size:42px;
+      margin-bottom:15px;
+    }
+
+    .emergency p{
+      margin-bottom:30px;
+      font-size:18px;
+    }
+
+    /* TEAM */
+
+    .team-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:25px;
+    }
+
+    .team-card{
+      background:white;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .team-card img{
+      width:100%;
+      height:280px;
+      object-fit:cover;
+    }
+
+    .team-content{
+      padding:25px;
+    }
+
+    .team-content h3{
+      margin-bottom:5px;
+    }
+
+    .verified{
+      color:#10b981;
+      font-weight:600;
+      margin-top:10px;
+    }
+
+    /* WHY CHOOSE US */
+
+    .why-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:20px;
+    }
+
+    .why-card{
+      background:white;
+      padding:25px;
+      border-radius:18px;
+      text-align:center;
+      box-shadow:0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    /* TESTIMONIALS */
+
+    .testimonial-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:25px;
+    }
+
+    .testimonial-card{
+      background:white;
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .stars{
+      color:#f59e0b;
+      margin-bottom:15px;
+    }
+
+    /* CONTACT */
+
+    .contact-wrapper{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:40px;
+      align-items:center;
+    }
+
+    .contact-info h3{
+      margin-bottom:20px;
+      font-size:32px;
+    }
+
+    .contact-info p{
+      margin-bottom:15px;
+      color:#475569;
+    }
+
+    .contact-form{
+      background:white;
+      padding:35px;
+      border-radius:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .contact-form input,
+    .contact-form textarea{
+      width:100%;
+      padding:15px;
+      margin-bottom:15px;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      font-size:16px;
+    }
+
+    .contact-form textarea{
+      resize:none;
+      height:120px;
+    }
+
+    /* FOOTER */
+
+    footer{
+      background:#0f172a;
+      color:white;
+      padding:30px 0;
+      text-align:center;
+      margin-top:50px;
+    }
+
+    /* MOBILE */
+
+    @media(max-width:768px){
+
+      .hero-text h1{
+        font-size:40px;
+      }
+
+      .nav-links{
+        display:none;
+      }
+
+      .hero-wrapper{
+        flex-direction:column;
+      }
+
+      .emergency{
+        padding:40px 20px;
+      }
+
+      .emergency h2{
+        font-size:30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <nav>
+    <div class="container nav-wrapper">
+      <div class="logo">KhayalSehat.com</div>
+
+      <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Services</a>
+        <a href="#">Team</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+
+        <a href="#" class="btn btn-primary">Book Appointment</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+
+  <section class="hero">
+    <div class="container hero-wrapper">
+
+      <div class="hero-text">
+        <h1>
+          Professional Healthcare Services At Your Doorstep
+        </h1>
+
+        <p>
+          IV Lines, Dressing, Injections, Catheter Care & Home Nursing Services by Verified Healthcare Professionals.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#" class="btn btn-primary">Book Appointment</a>
+          <a href="#" class="btn btn-secondary">WhatsApp Now</a>
+        </div>
+
+        <div class="badges">
+          <span>✔ Verified Staff</span>
+          <span>✔ Emergency Visits</span>
+          <span>✔ Home Service</span>
+        </div>
+      </div>
+
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=1200&auto=format&fit=crop" alt="">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+
+  <section>
+    <div class="container">
+
+      <div class="section-title">
+        <h2>Our Medical Services</h2>
+        <p>Professional healthcare services at your home.</p>
+      </div>
+
+      <div class="services-grid">
+
+        <div class="service-card">
+          <div class="service-icon">💉</div>
+          <h3>IV Line</h3>
+          <p>Fluid & medication administration by professionals.</p>
+          <a href="#" class="btn btn-primary">Book Now</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🩹</div>
+          <h3>Dressing</h3>
+          <p>Post-operative & wound dressing care.</p>
+          <a href="#" class="btn btn-primary">Book Now</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">💊</div>
+          <h3>Injection</h3>
+          <p>IM / IV injections at home safely.</p>
+          <a href="#" class="btn btn-primary">Book Now</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🏥</div>
+          <h3>Catheter Care</h3>
+          <p>Professional catheter insertion & replacement.</p>
+          <a href="#" class="btn btn-primary">Book Now</a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+
+  <section>
+    <div class="container">
+
+      <div class="section-title">
+        <h2>How It Works</h2>
+      </div>
+
+      <div class="steps">
+
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Select Service</h3>
+          <p>Choose the healthcare service you need.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Book Appointment</h3>
+          <p>Select your preferred date & time.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Home Visit</h3>
+          <p>Healthcare worker visits your location.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EMERGENCY -->
+
+  <section>
+    <div class="container">
+
+      <div class="emergency">
+        <h2>Need Urgent Medical Assistance?</h2>
+
+        <p>
+          Our healthcare professionals are available for emergency home visits.
+        </p>
+
+        <a href="#" class="btn btn-secondary">Call Now</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TEAM -->
+
+  <section>
+    <div class="container">
+
+      <div class="section-title">
+        <h2>Our Healthcare Team</h2>
+      </div>
+
+      <div class="team-grid">
+
+        <div class="team-card">
+          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=1200&auto=format&fit=crop" alt="">
+          <div class="team-content">
+            <h3>Zabi khan</h3>
+            <p>Surgical Technician</p>
+            <p>3 Years Experience</p>
+            <div class="verified">✔ Verified Professional</div>
+          </div>
+        </div>
+
+        <div class="team-card">
+          <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=1200&auto=format&fit=crop" alt="">
+          <div class="team-content">
+            <h3>Fatima Ali</h3>
+            <p>Registered Nurse</p>
+            <p>7 Years Experience</p>
+            <div class="verified">✔ Verified Professional</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+
+  <section>
+    <div class="container">
+
+      <div class="section-title">
+        <h2>Why Choose Us</h2>
+      </div>
+
+      <div class="why-grid">
+
+        <div class="why-card">
+          <h3>Verified Staff</h3>
+        </div>
+
+        <div class="why-card">
+          <h3>Fast Response</h3>
+        </div>
+
+        <div class="why-card">
+          <h3>Affordable Pricing</h3>
+        </div>
+
+        <div class="why-card">
+          <h3>Home Visits</h3>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+
+  <section>
+    <div class="container">
+
+      <div class="section-title">
+        <h2>Patient Reviews</h2>
+      </div>
+
+      <div class="testimonial-grid">
+
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>
+            Very professional IV service at home. Staff was punctual and experienced.
+          </p>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>
+            Excellent dressing care service. Highly recommended.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+
+  <section>
+    <div class="container">
+
+      <div class="contact-wrapper">
+
+        <div class="contact-info">
+          <h3>Contact Us</h3>
+
+          <p>📞 +92 3109776386</p>
+          <p>📧 info@Khayalsehat.com</p>
+          <p>📍 Peshawar, Pakistan</p>
+        </div>
+
+        <div class="contact-form">
+
+          <input type="text" placeholder="Your Name">
+
+          <input type="text" placeholder="Phone Number">
+
+          <textarea placeholder="Describe your medical need"></textarea>
+
+          <button class="btn btn-primary">
+            Submit Request
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+
+  <footer>
+    <div class="container">
+      <p>
+        © 2026 KhayalSehat. All Rights Reserved.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
