@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomeCare PK - Home Healthcare Services</title>
 
-  <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -73,6 +72,8 @@
       border-radius:12px;
       font-weight:600;
       transition:0.3s;
+      cursor: pointer;
+      border: none;
     }
 
     .btn-primary{
@@ -375,6 +376,40 @@
       margin-top:50px;
     }
 
+    /* --- AUTHENTICATION POPUP BOX MODAL STYLES --- */
+    .auth-modal {
+      display: none; 
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      justify-content: center; align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 24px;
+      width: 90%; max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute; top: 20px; right: 20px;
+      font-size: 24px; cursor: pointer; color: #64748b;
+    }
+
+    .modal-content h3 { margin-bottom: 20px; font-size: 24px; color: #0f172a; }
+    .modal-content input {
+      width: 100%; padding: 14px; margin-bottom: 12px;
+      border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px;
+    }
+    .toggle-auth {
+      text-align: center; margin-top: 15px; font-size: 14px; color: #2563eb; cursor: pointer; font-weight: 500;
+    }
+
     /* MOBILE */
 
     @media(max-width:768px){
@@ -404,8 +439,6 @@
 
 <body>
 
-  <!-- NAVBAR -->
-
   <nav>
     <div class="container nav-wrapper">
       <div class="logo">KhayalSehat.com</div>
@@ -416,29 +449,21 @@
         <a href="#">Team</a>
         <a href="#">About</a>
         <a href="#">Contact</a>
-
-        <a href="#" class="btn btn-primary">Book Appointment</a>
+        <button id="navActionBtn" class="btn btn-primary trigger-booking" data-service="General Appointment">Book Appointment</button>
       </div>
     </div>
   </nav>
-
-  <!-- HERO -->
 
   <section class="hero">
     <div class="container hero-wrapper">
 
       <div class="hero-text">
-        <h1>
-          Professional Healthcare Services At Your Doorstep
-        </h1>
-
-        <p>
-          IV Lines, Dressing, Injections, Catheter Care & Home Nursing Services by Verified Healthcare Professionals.
-        </p>
+        <h1>Professional Healthcare Services At Your Doorstep</h1>
+        <p>IV Lines, Dressing, Injections, Catheter Care & Home Nursing Services by Verified Healthcare Professionals.</p>
 
         <div class="hero-buttons">
-          <a href="#" class="btn btn-primary">Book Appointment</a>
-          <a href="#" class="btn btn-secondary">WhatsApp Now</a>
+          <button class="btn btn-primary trigger-booking" data-service="General Consultation">Book Appointment</button>
+          <a href="https://wa.me/923109776386" target="_blank" class="btn btn-secondary">WhatsApp Now</a>
         </div>
 
         <div class="badges">
@@ -449,13 +474,11 @@
       </div>
 
       <div class="hero-image">
-        <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=1200&auto=format&fit=crop" alt="">
+        <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=1200&auto=format&fit=crop" alt="Homecare Services">
       </div>
 
     </div>
   </section>
-
-  <!-- SERVICES -->
 
   <section>
     <div class="container">
@@ -471,28 +494,28 @@
           <div class="service-icon">💉</div>
           <h3>IV Line</h3>
           <p>Fluid & medication administration by professionals.</p>
-          <a href="#" class="btn btn-primary">Book Now</a>
+          <button class="btn btn-primary trigger-booking" data-service="IV Line Service">Book Now</button>
         </div>
 
         <div class="service-card">
           <div class="service-icon">🩹</div>
           <h3>Dressing</h3>
           <p>Post-operative & wound dressing care.</p>
-          <a href="#" class="btn btn-primary">Book Now</a>
+          <button class="btn btn-primary trigger-booking" data-service="Wound Dressing Care">Book Now</button>
         </div>
 
         <div class="service-card">
           <div class="service-icon">💊</div>
           <h3>Injection</h3>
           <p>IM / IV injections at home safely.</p>
-          <a href="#" class="btn btn-primary">Book Now</a>
+          <button class="btn btn-primary trigger-booking" data-service="Injection Administration">Book Now</button>
         </div>
 
         <div class="service-card">
           <div class="service-icon">🏥</div>
           <h3>Catheter Care</h3>
           <p>Professional catheter insertion & replacement.</p>
-          <a href="#" class="btn btn-primary">Book Now</a>
+          <button class="btn btn-primary trigger-booking" data-service="Catheter Care">Book Now</button>
         </div>
 
       </div>
@@ -500,71 +523,49 @@
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-
   <section>
     <div class="container">
-
       <div class="section-title">
         <h2>How It Works</h2>
       </div>
-
       <div class="steps">
-
         <div class="step-card">
           <div class="step-number">1</div>
           <h3>Select Service</h3>
           <p>Choose the healthcare service you need.</p>
         </div>
-
         <div class="step-card">
           <div class="step-number">2</div>
           <h3>Book Appointment</h3>
           <p>Select your preferred date & time.</p>
         </div>
-
         <div class="step-card">
           <div class="step-number">3</div>
           <h3>Home Visit</h3>
           <p>Healthcare worker visits your location.</p>
         </div>
-
       </div>
-
     </div>
   </section>
 
-  <!-- EMERGENCY -->
-
   <section>
     <div class="container">
-
       <div class="emergency">
         <h2>Need Urgent Medical Assistance?</h2>
-
-        <p>
-          Our healthcare professionals are available for emergency home visits.
-        </p>
-
-        <a href="#" class="btn btn-secondary">Call Now</a>
+        <p>Our healthcare professionals are available for emergency home visits.</p>
+        <a href="tel:+923109776386" class="btn btn-secondary">Call Now</a>
       </div>
-
     </div>
   </section>
 
-  <!-- TEAM -->
-
   <section>
     <div class="container">
-
       <div class="section-title">
         <h2>Our Healthcare Team</h2>
       </div>
-
       <div class="team-grid">
-
         <div class="team-card">
-          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=1200&auto=format&fit=crop" alt="Zabi Khan">
           <div class="team-content">
             <h3>Zabi khan</h3>
             <p>Surgical Technician</p>
@@ -572,9 +573,8 @@
             <div class="verified">✔ Verified Professional</div>
           </div>
         </div>
-
         <div class="team-card">
-          <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=1200&auto=format&fit=crop" alt="Fatima Ali">
           <div class="team-content">
             <h3>Fatima Ali</h3>
             <p>Registered Nurse</p>
@@ -582,117 +582,234 @@
             <div class="verified">✔ Verified Professional</div>
           </div>
         </div>
-
       </div>
-
     </div>
   </section>
 
-  <!-- WHY CHOOSE US -->
-
   <section>
     <div class="container">
-
       <div class="section-title">
         <h2>Why Choose Us</h2>
       </div>
-
       <div class="why-grid">
-
-        <div class="why-card">
-          <h3>Verified Staff</h3>
-        </div>
-
-        <div class="why-card">
-          <h3>Fast Response</h3>
-        </div>
-
-        <div class="why-card">
-          <h3>Affordable Pricing</h3>
-        </div>
-
-        <div class="why-card">
-          <h3>Home Visits</h3>
-        </div>
-
+        <div class="why-card"><h3>Verified Staff</h3></div>
+        <div class="why-card"><h3>Fast Response</h3></div>
+        <div class="why-card"><h3>Affordable Pricing</h3></div>
+        <div class="why-card"><h3>Home Visits</h3></div>
       </div>
-
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
-
   <section>
     <div class="container">
-
       <div class="section-title">
         <h2>Patient Reviews</h2>
       </div>
-
       <div class="testimonial-grid">
-
         <div class="testimonial-card">
           <div class="stars">★★★★★</div>
-          <p>
-            Very professional IV service at home. Staff was punctual and experienced.
-          </p>
+          <p>Very professional IV service at home. Staff was punctual and experienced.</p>
         </div>
-
         <div class="testimonial-card">
           <div class="stars">★★★★★</div>
-          <p>
-            Excellent dressing care service. Highly recommended.
-          </p>
+          <p>Excellent dressing care service. Highly recommended.</p>
         </div>
-
       </div>
-
     </div>
   </section>
 
-  <!-- CONTACT -->
-
   <section>
     <div class="container">
-
       <div class="contact-wrapper">
-
         <div class="contact-info">
           <h3>Contact Us</h3>
-
           <p>📞 +92 3109776386</p>
           <p>📧 info@Khayalsehat.com</p>
           <p>📍 Peshawar, Pakistan</p>
         </div>
 
         <div class="contact-form">
-
-          <input type="text" placeholder="Your Name">
-
-          <input type="text" placeholder="Phone Number">
-
-          <textarea placeholder="Describe your medical need"></textarea>
-
-          <button class="btn btn-primary">
-            Submit Request
-          </button>
-
+          <form id="footerInquiryForm">
+            <input type="text" id="footerName" placeholder="Your Name" required>
+            <input type="text" id="footerPhone" placeholder="Phone Number" required>
+            <textarea id="footerMsg" placeholder="Describe your medical need" required></textarea>
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+          </form>
         </div>
-
       </div>
-
     </div>
   </section>
 
-  <!-- FOOTER -->
-
   <footer>
     <div class="container">
-      <p>
-        © 2026 KhayalSehat. All Rights Reserved.
-      </p>
+      <p>© 2026 KhayalSehat. All Rights Reserved.</p>
     </div>
   </footer>
 
+  <div class="auth-modal" id="authModal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeModalBtn">&times;</span>
+      
+      <div id="loginView">
+        <h3>Login to KhayalSehat</h3>
+        <form id="modalLoginForm">
+          <input type="text" id="loginPhone" placeholder="Phone Number" required>
+          <input type="password" id="loginPass" placeholder="Password" required>
+          <button type="submit" class="btn btn-primary" style="width:100%">Sign In</button>
+        </form>
+        <p class="toggle-auth" onclick="switchAuthView('register')">New to KhayalSehat? Create Account</p>
+      </div>
+
+      <div id="registerView" style="display:none;">
+        <h3>Create Patient Account</h3>
+        <form id="modalRegisterForm">
+          <input type="text" id="regName" placeholder="Full Name" required>
+          <input type="text" id="regPhone" placeholder="Phone Number" required>
+          <input type="password" id="regPass" placeholder="Create Password" required>
+          <button type="submit" class="btn btn-secondary" style="width:100%">Register Account</button>
+        </form>
+        <p class="toggle-auth" onclick="switchAuthView('login')">Already have an account? Sign In</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'http://localhost:5000';
+    let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+    let selectedServicePending = "";
+
+    // Sync navbar layout options to display logged status on initial bootstrap sequence
+    if (currentUser) {
+      document.getElementById('navActionBtn').innerText = `Logout (${currentUser.name})`;
+    }
+
+    // Toggle Modal View Switchers 
+    function switchAuthView(targetView) {
+      document.getElementById('loginView').style.display = targetView === 'login' ? 'block' : 'none';
+      document.getElementById('registerView').style.display = targetView === 'register' ? 'block' : 'none';
+    }
+
+    // Capture User Actions across structural UI items ("Book Appointment" or "Book Now")
+    document.querySelectorAll('.trigger-booking').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Handle Logout Event Contextually if already Authenticated 
+        if (currentUser && this.id === 'navActionBtn') {
+           localStorage.removeItem('user');
+           currentUser = null;
+           this.innerText = "Book Appointment";
+           alert("Logged out successfully.");
+           return;
+        }
+
+        selectedServicePending = this.getAttribute('data-service') || "General Care Visit";
+
+        if (!currentUser) {
+          // Force active login configuration setup layer display frame execution hook
+          document.getElementById('authModal').style.display = 'flex';
+          switchAuthView('login');
+        } else {
+          // If authenticated directly dispatch appointment payload request profile
+          processBookingPipeline(currentUser.name, currentUser.phone, selectedServicePending, "Requested via online interface link profile click.");
+        }
+      });
+    });
+
+    // Close Modal View Handler Execution Profile
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      document.getElementById('authModal').style.display = 'none';
+    });
+
+    // Submitting login authentication setup packet profile
+    document.getElementById('modalLoginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const phone = document.getElementById('loginPhone').value;
+      const password = document.getElementById('loginPass').value;
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, password })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          currentUser = { name: data.name, phone: data.phone };
+          localStorage.setItem('user', JSON.stringify(currentUser));
+          document.getElementById('navActionBtn').innerText = `Logout (${data.name})`;
+          document.getElementById('authModal').style.display = 'none';
+          
+          // Complete booking loop sequence 
+          processBookingPipeline(currentUser.name, currentUser.phone, selectedServicePending, "Auto-booked post verification check profiling context.");
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert("Server validation pathway connectivity issues encountered.");
+      }
+    });
+
+    // Submitting target structural registry details frame dataset
+    document.getElementById('modalRegisterForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value;
+      const phone = document.getElementById('regPhone').value;
+      const password = document.getElementById('regPass').value;
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, password })
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert("Account creation successful! Logging you in...");
+          currentUser = { name, phone };
+          localStorage.setItem('user', JSON.stringify(currentUser));
+          document.getElementById('navActionBtn').innerText = `Logout (${name})`;
+          document.getElementById('authModal').style.display = 'none';
+          processBookingPipeline(name, phone, selectedServicePending, "Auto-booked on instant generation pathway verification context.");
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert("Registration profile endpoint parsing exception error.");
+      }
+    });
+
+    // Central Automated System Pipeline to Process API Bookings
+    async function processBookingPipeline(patientName, phone, serviceType, details) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/appointments/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ patientName, phone, serviceType, details })
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert(data.message);
+        } else {
+          alert("Booking tracking failure error configuration trace.");
+        }
+      } catch(err) {
+        alert("System connection lost to the medical data sync registry processing framework layer.");
+      }
+    }
+
+    // Direct Footer Inquiry Contact Form Booking Connector Pipeline
+    document.getElementById('footerInquiryForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const patientName = document.getElementById('footerName').value;
+      const phone = document.getElementById('footerPhone').value;
+      const details = document.getElementById('footerMsg').value;
+      
+      // Submit form inputs as an unauthenticated/quick tracking guest appointment data trace directly
+      await processBookingPipeline(patientName, phone, "Direct Form Consultation Request Request", details);
+      this.reset();
+    });
+  </script>
 </body>
 </html>
