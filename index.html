@@ -646,169 +646,112 @@
     </div>
   </footer>
 
-  <div class="auth-modal" id="authModal">
+  <div class="auth-modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
     <div class="modal-content">
-      <span class="close-modal" id="closeModalBtn">&times;</span>
-      
-      <div id="loginView">
-        <h3>Login to KhayalSehat</h3>
-        <form id="modalLoginForm">
-          <input type="text" id="loginPhone" placeholder="Phone Number" required>
-          <input type="password" id="loginPass" placeholder="Password" required>
-          <button type="submit" class="btn btn-primary" style="width:100%">Sign In</button>
-        </form>
-        <p class="toggle-auth" onclick="switchAuthView('register')">New to KhayalSehat? Create Account</p>
-      </div>
-
-      <div id="registerView" style="display:none;">
-        <h3>Create Patient Account</h3>
-        <form id="modalRegisterForm">
-          <input type="text" id="regName" placeholder="Full Name" required>
-          <input type="text" id="regPhone" placeholder="Phone Number" required>
-          <input type="password" id="regPass" placeholder="Create Password" required>
-          <button type="submit" class="btn btn-secondary" style="width:100%">Register Account</button>
-        </form>
-        <p class="toggle-auth" onclick="switchAuthView('login')">Already have an account? Sign In</p>
-      </div>
+      <span class="close-modal" id="closeBookingModal" role="button" aria-label="Close">&times;</span>
+      <h3 id="bookingTitle">Request an Appointment</h3>
+      <form id="bookingRequestForm">
+        <input id="bookingName" type="text" placeholder="Your full name" maxlength="100" required>
+        <input id="bookingPhone" type="tel" placeholder="Phone number" maxlength="20" required>
+        <input id="bookingService" type="text" placeholder="Service" maxlength="120" required>
+        <input id="bookingAddress" type="text" placeholder="Your address (optional)" maxlength="300">
+        <textarea id="bookingNotes" placeholder="Additional details (optional)" maxlength="1000"></textarea>
+        <input id="bookingWebsite" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+        <button type="submit" class="btn btn-primary" style="width:100%">Send Appointment Request</button>
+        <p id="bookingStatus" role="status" aria-live="polite"></p>
+      </form>
     </div>
   </div>
 
   <script>
-    const BACKEND_URL = 'http://localhost:5000';
-    let currentUser = JSON.parse(localStorage.getItem('user')) || null;
-    let selectedServicePending = "";
+    const SUPABASE_URL = 'https://wzfgtyzujyawatrkifit.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6Zmd0eXp1anlhd2F0cmtpZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NDk4ODIsImV4cCI6MjA5NjQyNTg4Mn0.8AQ0dXu16dtD9JQp3k7AzfiCj7GIGOdYcI3vPSH8Dco';
+    const BOOKING_ENDPOINT = SUPABASE_URL + '/functions/v1/public-booking';
 
-    // Sync navbar layout options to display logged status on initial bootstrap sequence
-    if (currentUser) {
-      document.getElementById('navActionBtn').innerText = `Logout (${currentUser.name})`;
+    const bookingModal = document.getElementById('bookingModal');
+    const bookingForm = document.getElementById('bookingRequestForm');
+    const bookingStatus = document.getElementById('bookingStatus');
+
+    function openBooking(service) {
+      bookingForm.reset();
+      document.getElementById('bookingService').value = service || 'General Consultation';
+      bookingStatus.textContent = '';
+      bookingModal.style.display = 'flex';
+      document.getElementById('bookingName').focus();
     }
 
-    // Toggle Modal View Switchers 
-    function switchAuthView(targetView) {
-      document.getElementById('loginView').style.display = targetView === 'login' ? 'block' : 'none';
-      document.getElementById('registerView').style.display = targetView === 'register' ? 'block' : 'none';
-    }
-
-    // Capture User Actions across structural UI items ("Book Appointment" or "Book Now")
-    document.querySelectorAll('.trigger-booking').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Handle Logout Event Contextually if already Authenticated 
-        if (currentUser && this.id === 'navActionBtn') {
-           localStorage.removeItem('user');
-           currentUser = null;
-           this.innerText = "Book Appointment";
-           alert("Logged out successfully.");
-           return;
-        }
-
-        selectedServicePending = this.getAttribute('data-service') || "General Care Visit";
-
-        if (!currentUser) {
-          // Force active login configuration setup layer display frame execution hook
-          document.getElementById('authModal').style.display = 'flex';
-          switchAuthView('login');
-        } else {
-          // If authenticated directly dispatch appointment payload request profile
-          processBookingPipeline(currentUser.name, currentUser.phone, selectedServicePending, "Requested via online interface link profile click.");
-        }
+    document.querySelectorAll('.trigger-booking').forEach(button => {
+      button.addEventListener('click', event => {
+        event.preventDefault();
+        openBooking(button.dataset.service || 'General Consultation');
       });
     });
 
-    // Close Modal View Handler Execution Profile
-    document.getElementById('closeModalBtn').addEventListener('click', () => {
-      document.getElementById('authModal').style.display = 'none';
+    document.getElementById('closeBookingModal').addEventListener('click', () => {
+      bookingModal.style.display = 'none';
+    });
+    bookingModal.addEventListener('click', event => {
+      if (event.target === bookingModal) bookingModal.style.display = 'none';
     });
 
-    // Submitting login authentication setup packet profile
-    document.getElementById('modalLoginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const phone = document.getElementById('loginPhone').value;
-      const password = document.getElementById('loginPass').value;
-
+    async function submitBooking(payload, statusElement, submitButton) {
+      statusElement.textContent = 'Sending your request...';
+      if (submitButton) submitButton.disabled = true;
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+        const response = await fetch(BOOKING_ENDPOINT, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone, password })
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify(payload)
         });
-        const data = await response.json();
-        
-        if (data.success) {
-          currentUser = { name: data.name, phone: data.phone };
-          localStorage.setItem('user', JSON.stringify(currentUser));
-          document.getElementById('navActionBtn').innerText = `Logout (${data.name})`;
-          document.getElementById('authModal').style.display = 'none';
-          
-          // Complete booking loop sequence 
-          processBookingPipeline(currentUser.name, currentUser.phone, selectedServicePending, "Auto-booked post verification check profiling context.");
-        } else {
-          alert(data.message);
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Your request could not be sent. Please contact us on WhatsApp.');
         }
-      } catch (err) {
-        alert("Server validation pathway connectivity issues encountered.");
-      }
-    });
-
-    // Submitting target structural registry details frame dataset
-    document.getElementById('modalRegisterForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const name = document.getElementById('regName').value;
-      const phone = document.getElementById('regPhone').value;
-      const password = document.getElementById('regPass').value;
-
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, phone, password })
-        });
-        const data = await response.json();
-        if (data.success) {
-          alert("Account creation successful! Logging you in...");
-          currentUser = { name, phone };
-          localStorage.setItem('user', JSON.stringify(currentUser));
-          document.getElementById('navActionBtn').innerText = `Logout (${name})`;
-          document.getElementById('authModal').style.display = 'none';
-          processBookingPipeline(name, phone, selectedServicePending, "Auto-booked on instant generation pathway verification context.");
-        } else {
-          alert(data.message);
-        }
-      } catch (err) {
-        alert("Registration profile endpoint parsing exception error.");
-      }
-    });
-
-    // Central Automated System Pipeline to Process API Bookings
-    async function processBookingPipeline(patientName, phone, serviceType, details) {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/appointments/book`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ patientName, phone, serviceType, details })
-        });
-        const data = await response.json();
-        if (data.success) {
-          alert(data.message);
-        } else {
-          alert("Booking tracking failure error configuration trace.");
-        }
-      } catch(err) {
-        alert("System connection lost to the medical data sync registry processing framework layer.");
+        statusElement.textContent = result.message + (result.reference ? ' Reference: ' + result.reference : '');
+        return true;
+      } catch (error) {
+        statusElement.textContent = error.message || 'Connection error. Please try WhatsApp.';
+        return false;
+      } finally {
+        if (submitButton) submitButton.disabled = false;
       }
     }
 
-    // Direct Footer Inquiry Contact Form Booking Connector Pipeline
-    document.getElementById('footerInquiryForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const patientName = document.getElementById('footerName').value;
-      const phone = document.getElementById('footerPhone').value;
-      const details = document.getElementById('footerMsg').value;
-      
-      // Submit form inputs as an unauthenticated/quick tracking guest appointment data trace directly
-      await processBookingPipeline(patientName, phone, "Direct Form Consultation Request Request", details);
-      this.reset();
+    bookingForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = bookingForm.querySelector('button[type="submit"]');
+      const ok = await submitBooking({
+        patient_name: document.getElementById('bookingName').value,
+        phone: document.getElementById('bookingPhone').value,
+        service: document.getElementById('bookingService').value,
+        address: document.getElementById('bookingAddress').value,
+        notes: document.getElementById('bookingNotes').value,
+        website: document.getElementById('bookingWebsite').value
+      }, bookingStatus, button);
+      if (ok) bookingForm.reset();
+    });
+
+    document.getElementById('footerInquiryForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const submitButton = form.querySelector('button[type="submit"]');
+      let status = document.getElementById('footerInquiryStatus');
+      if (!status) {
+        status = document.createElement('p');
+        status.id = 'footerInquiryStatus';
+        status.setAttribute('role', 'status');
+        form.appendChild(status);
+      }
+      const ok = await submitBooking({
+        patient_name: document.getElementById('footerName').value,
+        phone: document.getElementById('footerPhone').value,
+        service: 'General Consultation',
+        notes: document.getElementById('footerMsg').value
+      }, status, submitButton);
+      if (ok) form.reset();
     });
   </script>
 </body>
