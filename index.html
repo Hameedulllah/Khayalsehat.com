@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Khayal Sehat | Home Healthcare Services in Pakistan</title>
+  <meta name="description" content="Book trusted home healthcare services in Peshawar, Pakistan, including nursing, IV line care, injections, wound dressing and catheter care.">
+  <link rel="canonical" href="https://khayalsehat.com/">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Khayal Sehat | Home Healthcare Services in Pakistan">
+  <meta property="og:description" content="Professional home healthcare services in Peshawar, Pakistan. Request a home visit from verified healthcare professionals.">
+  <meta property="og:url" content="https://khayalsehat.com/">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -59,6 +66,18 @@
       display:flex;
       gap:30px;
       align-items:center;
+    }
+
+    .mobile-menu-toggle{
+      display:none;
+      background:#2563eb;
+      color:white;
+      border:0;
+      border-radius:10px;
+      padding:10px 14px;
+      font:inherit;
+      font-weight:600;
+      cursor:pointer;
     }
 
     .nav-links a{
@@ -418,9 +437,31 @@
         font-size:40px;
       }
 
+      .nav-wrapper{ position:relative; }
+
+      .mobile-menu-toggle{ display:inline-block; }
+
       .nav-links{
         display:none;
+        position:absolute;
+        top:calc(100% + 14px);
+        left:0;
+        right:0;
+        flex-direction:column;
+        align-items:stretch;
+        gap:0;
+        padding:12px;
+        background:white;
+        border:1px solid #e2e8f0;
+        border-radius:14px;
+        box-shadow:0 12px 30px rgba(0,0,0,0.12);
       }
+
+      .nav-links.open{ display:flex; }
+
+      .nav-links a{ padding:12px; }
+
+      .nav-links .btn{ margin-top:8px; }
 
       .hero-wrapper{
         flex-direction:column;
@@ -442,8 +483,9 @@
   <nav>
     <div class="container nav-wrapper">
       <div class="logo">KhayalSehat.com</div>
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-controls="primaryNavigation" aria-expanded="false">Menu</button>
 
-      <div class="nav-links">
+      <div class="nav-links" id="primaryNavigation">
         <a href="#home">Home</a>
         <a href="#services">Services</a>
         <a href="#team">Team</a>
@@ -664,6 +706,23 @@
   </div>
 
   <script>
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const primaryNavigation = document.getElementById('primaryNavigation');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      const isOpen = primaryNavigation.classList.toggle('open');
+      mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
+      mobileMenuToggle.textContent = isOpen ? 'Close' : 'Menu';
+    });
+
+    primaryNavigation.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        primaryNavigation.classList.remove('open');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        mobileMenuToggle.textContent = 'Menu';
+      });
+    });
+
     const SUPABASE_URL = 'https://wzfgtyzujyawatrkifit.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6Zmd0eXp1anlhd2F0cmtpZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NDk4ODIsImV4cCI6MjA5NjQyNTg4Mn0.8AQ0dXu16dtD9JQp3k7AzfiCj7GIGOdYcI3vPSH8Dco';
     const BOOKING_ENDPOINT = SUPABASE_URL + '/functions/v1/public-booking';
