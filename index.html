@@ -697,7 +697,8 @@
         <input id="bookingPhone" type="tel" placeholder="Phone number" maxlength="20" required>
         <input id="bookingService" type="text" placeholder="Service" maxlength="120" required>
         <input id="bookingAddress" type="text" placeholder="Your address (optional)" maxlength="300">
-        <textarea id="bookingNotes" placeholder="Additional details (optional)" maxlength="1000"></textarea>
+        <textarea id="bookingMedicalInfo" placeholder="Medical concern / symptoms (e.g. wound condition, pain, duration) — optional" maxlength="1500"></textarea>
+        <textarea id="bookingNotes" placeholder="Other instructions or additional details (optional)" maxlength="1000"></textarea>
         <input id="bookingWebsite" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
         <button type="submit" class="btn btn-primary" style="width:100%">Send Appointment Request</button>
         <p id="bookingStatus" role="status" aria-live="polite"></p>
@@ -787,6 +788,7 @@
         phone: document.getElementById('bookingPhone').value,
         service: document.getElementById('bookingService').value,
         address: document.getElementById('bookingAddress').value,
+        medical_info: document.getElementById('bookingMedicalInfo').value,
         notes: document.getElementById('bookingNotes').value,
         website: document.getElementById('bookingWebsite').value
       }, bookingStatus, button);
