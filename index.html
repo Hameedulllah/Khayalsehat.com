@@ -694,7 +694,7 @@
         <div class="contact-form">
           <form id="footerInquiryForm">
             <input type="text" id="footerName" placeholder="Your Name" required>
-            <input type="text" id="footerPhone" placeholder="Phone Number" required>
+            <input type="tel" id="footerPhone" placeholder="03XXXXXXXXX or +923XXXXXXXXX" minlength="11" maxlength="13" inputmode="tel" pattern="(03[0-9]{9}|\+923[0-9]{9})" title="Enter a Pakistani mobile number: 03XXXXXXXXX or +923XXXXXXXXX" required>
             <textarea id="footerMsg" placeholder="Describe your medical need" required></textarea>
             <button type="submit" class="btn btn-primary">Submit Request</button>
           </form>
@@ -722,7 +722,7 @@
           <option value="Female">Female</option>
           <option value="Other">Other</option>
         </select>
-        <input id="bookingPhone" type="tel" placeholder="Phone number" maxlength="20" autocomplete="tel" required>
+        <input id="bookingPhone" type="tel" placeholder="03XXXXXXXXX or +923XXXXXXXXX" minlength="11" maxlength="13" inputmode="tel" autocomplete="tel" pattern="(03[0-9]{9}|\+923[0-9]{9})" title="Enter a Pakistani mobile number: 03XXXXXXXXX or +923XXXXXXXXX" required>
         <select id="bookingService" required aria-label="Select healthcare service">
           <option value="">Select a service</option>
           <option value="General Consultation">General Consultation</option>
@@ -802,7 +802,15 @@
       if (event.target === bookingModal) bookingModal.style.display = 'none';
     });
 
+    function isValidPakistaniMobile(value) {
+      return /^(?:03\\d{9}|\\+923\\d{9})$/.test(String(value || '').trim());
+    }
+
     async function submitBooking(payload, statusElement, submitButton) {
+      if (!isValidPakistaniMobile(payload.phone)) {
+        statusElement.textContent = 'Enter a valid Pakistani mobile number: 03XXXXXXXXX or +923XXXXXXXXX.';
+        return false;
+      }
       statusElement.textContent = 'Sending your request...';
       if (submitButton) submitButton.disabled = true;
       try {
