@@ -803,7 +803,7 @@
     });
 
     function isValidPakistaniMobile(value) {
-      return /^(?:03\\d{9}|\\+923\\d{9})$/.test(String(value || '').trim());
+      return /^(?:03\d{9}|\+923\d{9})$/.test(String(value || '').trim());
     }
 
     async function submitBooking(payload, statusElement, submitButton) {
