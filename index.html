@@ -86,6 +86,12 @@
     .login-card button[type=submit], .login-card .login-action{ width:100%; padding:13px; margin-top:10px; border:0; border-radius:10px; background:#2563eb; color:white; font-weight:600; cursor:pointer; }
     .login-close{ position:absolute; top:14px; right:18px; border:0; background:transparent; font-size:28px; cursor:pointer; color:#64748b; }
     #loginStatus{ min-height:24px; overflow-wrap:anywhere; }
+    .password-field{ position:relative; }
+    .password-field input{ padding-right:76px; }
+    .password-visibility{ display:inline-block; padding:6px 9px; border:1px solid #cbd5e1; border-radius:7px; background:#f8fafc; color:#1d4ed8; cursor:pointer; font-size:13px; }
+    .password-field .password-visibility{ position:absolute; right:8px; top:15px; }
+    #passwordRecoveryForm .password-visibility{ margin:0 0 8px; }
+    .forgot-password{ display:block; margin:8px 0 0 auto; padding:4px 0; border:0; background:transparent; color:#2563eb; cursor:pointer; font-size:14px; }
     #adminDashboard{ display:none; margin-top:18px; }
     #adminBookings{ max-height:320px; overflow:auto; }
     .admin-booking{ border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin:10px 0; }
@@ -763,8 +769,19 @@
       <p id="loginDescription">Sign in with your registered account.</p>
       <form id="accountLoginForm">
         <input id="accountEmail" type="email" placeholder="Registered email address" autocomplete="username" required>
-        <input id="accountPassword" type="password" placeholder="Password" autocomplete="current-password" required>
+        <div class="password-field">
+          <input id="accountPassword" type="password" placeholder="Password" autocomplete="current-password" required>
+          <button type="button" class="password-visibility" data-target="accountPassword" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
         <button type="submit" id="accountLoginSubmit">Sign In</button>
+        <button type="button" id="forgotPasswordButton" class="forgot-password">Forgot password?</button>
+      </form>
+      <form id="passwordRecoveryForm" style="display:none">
+        <input id="recoveryNewPassword" type="password" placeholder="New password (at least 8 characters)" minlength="8" autocomplete="new-password" required>
+        <button type="button" class="password-visibility" data-target="recoveryNewPassword" aria-label="Show new password" aria-pressed="false">Show</button>
+        <input id="recoveryConfirmPassword" type="password" placeholder="Confirm new password" minlength="8" autocomplete="new-password" required>
+        <button type="button" class="password-visibility" data-target="recoveryConfirmPassword" aria-label="Show confirm password" aria-pressed="false">Show</button>
+        <button type="submit" id="saveNewPasswordButton">Save New Password</button>
       </form>
       <p id="loginStatus" role="status" aria-live="polite"></p>
       <section id="adminDashboard">
@@ -830,6 +847,106 @@
     loginModal.addEventListener('click', event => {
       if (event.target === loginModal) loginModal.style.display = 'none';
     });
+
+    document.querySelectorAll('.password-visibility').forEach(button => {
+      button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.target);
+        const reveal = input.type === 'password';
+        input.type = reveal ? 'text' : 'password';
+        button.textContent = reveal ? 'Hide' : 'Show';
+        button.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+        button.setAttribute('aria-pressed', String(reveal));
+      });
+    });
+
+    document.getElementById('forgotPasswordButton').addEventListener('click', async () => {
+      const email = document.getElementById('accountEmail').value.trim().toLowerCase();
+      if (!email) {
+        loginStatus.textContent = 'Enter your registered email address first.';
+        document.getElementById('accountEmail').focus();
+        return;
+      }
+      const button = document.getElementById('forgotPasswordButton');
+      button.disabled = true;
+      loginStatus.textContent = 'Requesting a password-reset email...';
+      try {
+        const redirectTo = encodeURIComponent(window.location.origin + window.location.pathname + '?auth=recovery');
+        await authRequest('/auth/v1/recover?redirect_to=' + redirectTo, {
+          method: 'POST', body: JSON.stringify({ email })
+        });
+        loginStatus.textContent = 'If this email belongs to an account, a password-reset link will be sent. Check your inbox and spam folder.';
+      } catch (error) {
+        loginStatus.textContent = error.message || 'Could not request a reset email. Please try again.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('passwordRecoveryForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const newPassword = document.getElementById('recoveryNewPassword').value;
+      const confirmPassword = document.getElementById('recoveryConfirmPassword').value;
+      const saveButton = document.getElementById('saveNewPasswordButton');
+      if (newPassword.length < 8) {
+        loginStatus.textContent = 'Use a password with at least 8 characters.';
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        loginStatus.textContent = 'The passwords do not match.';
+        return;
+      }
+      if (!window.recoveryAccessToken) {
+        loginStatus.textContent = 'This reset link is missing or expired. Request a new password-reset email.';
+        return;
+      }
+      saveButton.disabled = true;
+      loginStatus.textContent = 'Updating your password securely...';
+      try {
+        await authRequest('/auth/v1/user', {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + window.recoveryAccessToken },
+          body: JSON.stringify({ password: newPassword })
+        });
+        window.recoveryAccessToken = null;
+        document.getElementById('passwordRecoveryForm').style.display = 'none';
+        loginForm.style.display = 'block';
+        loginStatus.textContent = 'Your password has been updated. You can now sign in with your new password.';
+        document.getElementById('accountPassword').value = '';
+        document.getElementById('recoveryNewPassword').value = '';
+        document.getElementById('recoveryConfirmPassword').value = '';
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (error) {
+        loginStatus.textContent = error.message || 'Password update failed. The reset link may have expired.';
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
+    function handlePasswordRecoveryLink() {
+      const hash = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = hash.get('access_token');
+      const recoveryType = hash.get('type');
+      const errorDescription = hash.get('error_description');
+      if (errorDescription) {
+        loginModal.style.display = 'flex';
+        loginTitle.textContent = 'Password Reset';
+        loginDescription.textContent = 'The password-reset link could not be verified.';
+        loginStatus.textContent = errorDescription.replace(/\+/g, ' ');
+        return;
+      }
+      if (accessToken && recoveryType === 'recovery') {
+        window.recoveryAccessToken = accessToken;
+        loginModal.style.display = 'flex';
+        loginTitle.textContent = 'Create a New Password';
+        loginDescription.textContent = 'Choose a new password for your account.';
+        loginForm.style.display = 'none';
+        document.getElementById('passwordRecoveryForm').style.display = 'block';
+        loginStatus.textContent = 'Reset link verified. Enter your new password below.';
+      }
+    }
+    handlePasswordRecoveryLink();
 
     async function authRequest(path, options = {}) {
       const response = await fetch(SUPABASE_URL + path, {
