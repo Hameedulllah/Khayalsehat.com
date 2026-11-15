@@ -68,6 +68,15 @@
       align-items:center;
     }
 
+    .portal-menu-wrap{ position:relative; }
+    .portal-menu-toggle{ display:inline-flex; flex-direction:column; justify-content:center; gap:5px; width:44px; height:44px; padding:10px; border:0; border-radius:10px; background:#eff6ff; cursor:pointer; }
+    .portal-menu-toggle span{ display:block; height:2px; width:22px; background:#1d4ed8; border-radius:2px; }
+    .portal-menu{ display:none; position:absolute; top:calc(100% + 12px); right:0; width:220px; padding:10px; background:white; border:1px solid #e2e8f0; border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,.14); z-index:1100; }
+    .portal-menu.open{ display:block; }
+    .portal-menu strong{ display:block; padding:8px 10px; color:#0f172a; }
+    .portal-menu button{ display:block; width:100%; padding:10px; text-align:left; border:0; border-radius:8px; background:transparent; color:#334155; font:inherit; cursor:default; }
+    .portal-menu button:disabled{ opacity:1; color:#334155; }
+    .portal-menu small{ display:block; padding:0 10px 8px; color:#64748b; }
     .mobile-menu-toggle{
       display:none;
       background:#2563eb;
@@ -371,7 +380,9 @@
     }
 
     .contact-form input,
-    .contact-form textarea{
+    .contact-form textarea,
+    #bookingRequestForm input,
+    #bookingRequestForm select{
       width:100%;
       padding:15px;
       margin-bottom:15px;
@@ -491,7 +502,17 @@
         <a href="#team">Team</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
-        <button id="navActionBtn" class="btn btn-primary trigger-booking" data-service="General Appointment">Book Appointment</button>
+        <button id="navActionBtn" class="btn btn-primary trigger-booking" data-service="General Consultation">Book Appointment</button>
+      </div>
+      <div class="portal-menu-wrap">
+        <button class="portal-menu-toggle" id="portalMenuToggle" type="button" aria-label="Open login options" aria-controls="portalMenu" aria-expanded="false"><span></span><span></span><span></span></button>
+        <div class="portal-menu" id="portalMenu" aria-label="Login options">
+          <strong>Account Login</strong>
+          <button type="button" disabled>Patient Login</button>
+          <button type="button" disabled>Staff Login</button>
+          <button type="button" disabled>Admin Login</button>
+          <small>Login portals are being prepared.</small>
+        </div>
       </div>
     </div>
   </nav>
@@ -693,11 +714,25 @@
       <span class="close-modal" id="closeBookingModal" role="button" aria-label="Close">&times;</span>
       <h3 id="bookingTitle">Request an Appointment</h3>
       <form id="bookingRequestForm">
-        <input id="bookingName" type="text" placeholder="Your full name" maxlength="100" required>
-        <input id="bookingPhone" type="tel" placeholder="Phone number" maxlength="20" required>
-        <input id="bookingService" type="text" placeholder="Service" maxlength="120" required>
-        <input id="bookingAddress" type="text" placeholder="Your address (optional)" maxlength="300">
-        <textarea id="bookingMedicalInfo" placeholder="Medical concern / symptoms (e.g. wound condition, pain, duration) — optional" maxlength="1500"></textarea>
+        <input id="bookingName" type="text" placeholder="Patient full name" maxlength="100" autocomplete="name" required>
+        <input id="bookingAge" type="number" placeholder="Age (years)" min="0" max="120" step="1" required>
+        <select id="bookingGender" required aria-label="Select sex">
+          <option value="">Select sex</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+        <input id="bookingPhone" type="tel" placeholder="Phone number" maxlength="20" autocomplete="tel" required>
+        <select id="bookingService" required aria-label="Select healthcare service">
+          <option value="">Select a service</option>
+          <option value="General Consultation">General Consultation</option>
+          <option value="IV Line Service">IV Line</option>
+          <option value="Wound Dressing Care">Wound Dressing</option>
+          <option value="Injection Administration">Injection</option>
+          <option value="Catheter Care">Catheter Care</option>
+        </select>
+        <input id="bookingAddress" type="text" placeholder="Your address (optional)" maxlength="300" autocomplete="street-address">
+        <input id="bookingMedicalInfo" type="text" placeholder="Medical concern / symptoms (optional)" maxlength="1500">
         <textarea id="bookingNotes" placeholder="Other instructions or additional details (optional)" maxlength="1000"></textarea>
         <input id="bookingWebsite" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
         <button type="submit" class="btn btn-primary" style="width:100%">Send Appointment Request</button>
@@ -707,6 +742,19 @@
   </div>
 
   <script>
+    const portalMenuToggle = document.getElementById('portalMenuToggle');
+    const portalMenu = document.getElementById('portalMenu');
+    portalMenuToggle.addEventListener('click', () => {
+      const isOpen = portalMenu.classList.toggle('open');
+      portalMenuToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.portal-menu-wrap')) {
+        portalMenu.classList.remove('open');
+        portalMenuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const primaryNavigation = document.getElementById('primaryNavigation');
 
@@ -785,6 +833,8 @@
       const button = bookingForm.querySelector('button[type="submit"]');
       const ok = await submitBooking({
         patient_name: document.getElementById('bookingName').value,
+        age: document.getElementById('bookingAge').value,
+        gender: document.getElementById('bookingGender').value,
         phone: document.getElementById('bookingPhone').value,
         service: document.getElementById('bookingService').value,
         address: document.getElementById('bookingAddress').value,
