@@ -76,6 +76,21 @@
     .portal-menu strong{ display:block; padding:8px 10px; color:#0f172a; }
     .portal-menu button{ display:block; width:100%; padding:10px; text-align:left; border:0; border-radius:8px; background:transparent; color:#334155; font:inherit; cursor:default; }
     .portal-menu button:disabled{ opacity:1; color:#334155; }
+    .portal-menu .portal-login-choice{ cursor:pointer; }
+    .portal-menu .portal-login-choice:hover{ background:#eff6ff; color:#1d4ed8; }
+    .login-modal{ display:none; position:fixed; inset:0; z-index:3000; background:rgba(15,23,42,.68); padding:20px; align-items:center; justify-content:center; }
+    .login-card{ width:100%; max-width:460px; max-height:90vh; overflow:auto; background:#fff; border-radius:18px; padding:28px; position:relative; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+    .login-card h3{ margin:0 36px 8px 0; color:#0f172a; font-size:24px; }
+    .login-card p{ color:#475569; line-height:1.55; }
+    .login-card input{ width:100%; padding:13px; margin:8px 0; border:1px solid #cbd5e1; border-radius:10px; font-size:16px; }
+    .login-card button[type=submit], .login-card .login-action{ width:100%; padding:13px; margin-top:10px; border:0; border-radius:10px; background:#2563eb; color:white; font-weight:600; cursor:pointer; }
+    .login-close{ position:absolute; top:14px; right:18px; border:0; background:transparent; font-size:28px; cursor:pointer; color:#64748b; }
+    #loginStatus{ min-height:24px; overflow-wrap:anywhere; }
+    #adminDashboard{ display:none; margin-top:18px; }
+    #adminBookings{ max-height:320px; overflow:auto; }
+    .admin-booking{ border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin:10px 0; }
+    .admin-booking small{ display:block; color:#64748b; margin-top:4px; }
+    @media(max-width:480px){ .login-card{ padding:22px 18px; } }
     .portal-menu small{ display:block; padding:0 10px 8px; color:#64748b; }
     .mobile-menu-toggle{
       display:none;
@@ -508,10 +523,10 @@
         <button class="portal-menu-toggle" id="portalMenuToggle" type="button" aria-label="Open login options" aria-controls="portalMenu" aria-expanded="false"><span></span><span></span><span></span></button>
         <div class="portal-menu" id="portalMenu" aria-label="Login options">
           <strong>Account Login</strong>
-          <button type="button" disabled>Patient Login</button>
-          <button type="button" disabled>Staff Login</button>
-          <button type="button" disabled>Admin Login</button>
-          <small>Login portals are being prepared.</small>
+          <button type="button" class="portal-login-choice" data-portal="patient">Patient Login</button>
+          <button type="button" class="portal-login-choice" data-portal="staff">Staff Login</button>
+          <button type="button" class="portal-login-choice" data-portal="admin">Admin Login</button>
+          <small>Choose your secure account portal.</small>
         </div>
       </div>
     </div>
@@ -741,6 +756,26 @@
     </div>
   </div>
 
+  <div class="login-modal" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="login-card">
+      <button type="button" class="login-close" id="closeLoginModal" aria-label="Close">&times;</button>
+      <h3 id="loginTitle">Account Login</h3>
+      <p id="loginDescription">Sign in with your registered account.</p>
+      <form id="accountLoginForm">
+        <input id="accountEmail" type="email" placeholder="Registered email address" autocomplete="username" required>
+        <input id="accountPassword" type="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit" id="accountLoginSubmit">Sign In</button>
+      </form>
+      <p id="loginStatus" role="status" aria-live="polite"></p>
+      <section id="adminDashboard">
+        <h3>Admin Dashboard</h3>
+        <p id="adminDashboardStatus">Loading booking requests...</p>
+        <div id="adminBookings"></div>
+        <button type="button" class="login-action" id="adminLogout">Sign Out</button>
+      </section>
+    </div>
+  </div>
+
   <script>
     const portalMenuToggle = document.getElementById('portalMenuToggle');
     const portalMenu = document.getElementById('portalMenu');
@@ -752,6 +787,153 @@
       if (!event.target.closest('.portal-menu-wrap')) {
         portalMenu.classList.remove('open');
         portalMenuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    const loginModal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('accountLoginForm');
+    const loginStatus = document.getElementById('loginStatus');
+    const loginTitle = document.getElementById('loginTitle');
+    const loginDescription = document.getElementById('loginDescription');
+    const loginSubmit = document.getElementById('accountLoginSubmit');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const adminBookings = document.getElementById('adminBookings');
+    let activePortal = 'admin';
+    let activeAuthSession = null;
+
+    function openLogin(portal) {
+      activePortal = portal;
+      portalMenu.classList.remove('open');
+      portalMenuToggle.setAttribute('aria-expanded', 'false');
+      loginForm.style.display = portal === 'patient' ? 'none' : 'block';
+      adminDashboard.style.display = 'none';
+      loginStatus.textContent = '';
+      if (portal === 'patient') {
+        loginTitle.textContent = 'Patient Login';
+        loginDescription.textContent = 'Patient phone-number verification is not enabled on this project yet. We will enable this after configuring and testing Supabase phone OTP and SMS delivery. Your booking requests remain available without an account.';
+      } else if (portal === 'staff') {
+        loginTitle.textContent = 'Staff Login';
+        loginDescription.textContent = 'Use the email address and password for your approved Khayal Sehat staff account.';
+      } else {
+        loginTitle.textContent = 'Admin Login';
+        loginDescription.textContent = 'Sign in using the existing administrator email and password.';
+      }
+      loginModal.style.display = 'flex';
+    }
+
+    document.querySelectorAll('.portal-login-choice').forEach(button => {
+      button.addEventListener('click', () => openLogin(button.dataset.portal));
+    });
+    document.getElementById('closeLoginModal').addEventListener('click', () => {
+      loginModal.style.display = 'none';
+    });
+    loginModal.addEventListener('click', event => {
+      if (event.target === loginModal) loginModal.style.display = 'none';
+    });
+
+    async function authRequest(path, options = {}) {
+      const response = await fetch(SUPABASE_URL + path, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          ...(options.headers || {})
+        }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = data.msg || data.message || data.error_description || data.error || 'Authentication failed.';
+        throw new Error(message);
+      }
+      return data;
+    }
+
+    async function loadAdminBookings(accessToken) {
+      const status = document.getElementById('adminDashboardStatus');
+      status.textContent = 'Loading booking requests...';
+      adminBookings.innerHTML = '';
+      const response = await fetch(SUPABASE_URL + '/rest/v1/bookings?select=id,patient_name,phone,service,status,ref_no,created_at,medical_info&order=created_at.desc&limit=50', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + accessToken }
+      });
+      const rows = await response.json().catch(() => []);
+      if (!response.ok) throw new Error('Signed in, but booking records could not be loaded. Check administrator access.');
+      if (!Array.isArray(rows) || rows.length === 0) {
+        status.textContent = 'No booking requests were found.';
+        return;
+      }
+      status.textContent = 'Showing the latest ' + rows.length + ' booking request(s).';
+      rows.forEach(row => {
+        const item = document.createElement('article');
+        item.className = 'admin-booking';
+        const heading = document.createElement('strong');
+        heading.textContent = (row.patient_name || 'Patient') + ' — ' + (row.service || 'Service not specified');
+        const details = document.createElement('small');
+        details.textContent = 'Phone: ' + (row.phone || 'Not provided') + ' | Status: ' + (row.status || 'New') + (row.ref_no ? ' | Ref: ' + row.ref_no : '');
+        const concern = document.createElement('p');
+        concern.textContent = row.medical_info || 'No medical concern provided.';
+        item.append(heading, details, concern);
+        adminBookings.appendChild(item);
+      });
+    }
+
+    loginForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      loginSubmit.disabled = true;
+      loginStatus.textContent = 'Signing in securely...';
+      try {
+        const email = document.getElementById('accountEmail').value.trim().toLowerCase();
+        const password = document.getElementById('accountPassword').value;
+        let session = await authRequest('/auth/v1/token?grant_type=password', {
+          method: 'POST', body: JSON.stringify({ email, password })
+        });
+        let role = session.user && session.user.app_metadata && session.user.app_metadata.role;
+
+        if (activePortal === 'admin' && role !== 'admin') {
+          const claim = await fetch(SUPABASE_URL + '/functions/v1/admin-staff-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token },
+            body: JSON.stringify({ action: 'claim_admin' })
+          });
+          const claimResult = await claim.json().catch(() => ({}));
+          if (!claim.ok || !claimResult.success) throw new Error(claimResult.error || 'This account is not authorized as an administrator.');
+          session = await authRequest('/auth/v1/token?grant_type=refresh_token', {
+            method: 'POST', body: JSON.stringify({ refresh_token: session.refresh_token })
+          });
+          role = session.user && session.user.app_metadata && session.user.app_metadata.role;
+        }
+
+        if (activePortal === 'admin' && role !== 'admin') throw new Error('Administrator role could not be verified. Sign out and sign in again.');
+        if (activePortal === 'staff' && role !== 'staff') throw new Error('This account is not an approved staff account. Contact the administrator.');
+        activeAuthSession = session;
+        if (activePortal === 'admin') {
+          loginForm.style.display = 'none';
+          adminDashboard.style.display = 'block';
+          loginStatus.textContent = 'Administrator signed in.';
+          await loadAdminBookings(session.access_token);
+        } else {
+          loginStatus.textContent = 'Staff sign-in successful. The staff workspace is not yet available; contact the administrator for access.';
+        }
+      } catch (error) {
+        loginStatus.textContent = error.message || 'Unable to sign in. Check your details and try again.';
+      } finally {
+        loginSubmit.disabled = false;
+      }
+    });
+
+    document.getElementById('adminLogout').addEventListener('click', async () => {
+      try {
+        if (activeAuthSession && activeAuthSession.access_token) {
+          await fetch(SUPABASE_URL + '/auth/v1/logout', {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + activeAuthSession.access_token }
+          });
+        }
+      } finally {
+        activeAuthSession = null;
+        loginForm.reset();
+        loginForm.style.display = 'block';
+        adminDashboard.style.display = 'none';
+        loginStatus.textContent = 'You have been signed out.';
       }
     });
 
